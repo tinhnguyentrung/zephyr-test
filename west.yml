@@ -1,0 +1,11 @@
+# Tinh Nguyen 2023 <tinh.nguyentrung1999@gmail.com>
+
+manifest:
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: v2.7.5
