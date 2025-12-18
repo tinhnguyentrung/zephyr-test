@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Sensor Auxiliary Names PDR Schema (DSP0248 1.3.0, Clause 28.8)",
+  "type": "object",
+  "additionalProperties": false,
+  "binaryOrder": [
+    "pdrHeader",
+    "PLDMTerminusHandle",
+    "sensorID",
+    "sensorCount",
+    "auxNames"
+  ],
+  "properties": {
+    "pdrHeader": {
+      "type": "object",
+      "description": "Standard PDR Header",
+      "additionalProperties": false,
+      "binaryOrder": [
+        "recordHandle",
+        "PDRHeaderVersion",
+        "PDRType",
+        "recordChangeNumber",
+        "dataLength"
+      ],
+      "properties": {
+        "recordHandle": {
+          "oneOf": [
+            { "type": "string", "enum": ["auto"] },
+            { "type": "integer", "minimum": 0, "maximum": 4294967295 }
+          ],
+          "binaryFormat": "I",
+          "description": "uint32; 0x00000000 = auto-assign"
+        },
+        "PDRHeaderVersion": {
+          "type": "integer",
+          "const": 1,
+          "binaryFormat": "B",
+          "description": "uint8; Fixed 1"
+        },
+        "PDRType": {
+          "type": "integer",
+          "const": 6,
+          "binaryFormat": "B",
+          "description": "uint8; Sensor Auxiliary Names PDR = 6"
+        },
+        "recordChangeNumber": {
+          "type": "integer",
+          "default": 0,
+          "binaryFormat": "H",
+          "description": "uint16"
+        },
+        "dataLength": {
+          "oneOf": [
+            { "type": "string", "enum": ["auto"] },
+            { "type": "integer", "minimum": 0 }
+          ],
+          "binaryFormat": "H",
+          "description": "uint16; Total length of data following header"
+        }
+      },
+      "required": ["recordHandle", "PDRHeaderVersion", "PDRType", "recordChangeNumber", "dataLength"]
+    },
+    "PLDMTerminusHandle": {
+      "type": "integer",
+      "binaryFormat": "H",
+      "description": "uint16; Handle of the PLDM Terminus"
+    },
+    "sensorID": {
+      "type": "integer",
+      "binaryFormat": "H",
+      "description": "uint16; Unique Sensor ID"
+    },
+    "sensorCount": {
+      "type": "integer",
+      "binaryFormat": "B",
+      "minimum": 1,
+      "maximum": 255,
+      "description": "uint8; Number of sensors (usually matches auxNames.length). Must follow sensorID."
+    },
+    "auxNames": {
+      "type": "array",
+      "description": "List of Auxiliary Name structures. Length must match 'sensorCount'.",
+      "minItems": 1,
+      "maxItems": 255,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "binaryOrder": [
+          "nameStringCount",
+          "names"
+        ],
+        "properties": {
+          "nameStringCount": {
+            "type": "integer",
+            "binaryFormat": "B",
+            "description": "uint8; Number of name pairs."
+          },
+          "names": {
+            "type": "array",
+            "description": "List of Language/Name pairs",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "binaryOrder": [
+                "nameLanguageTag",
+                "sensorName"
+              ],
+              "properties": {
+                "nameLanguageTag": {
+                  "type": "string",
+                  "description": "strASCII per DSP0240. RFC 5646 tag (e.g., 'en'). Null-terminated (0x00).",
+                  "binaryFormat": "variable",
+                  "x-binary-terminator": "0x00"
+                },
+                "sensorName": {
+                  "type": "string",
+                  "description": "strUTF-16 per DSP0240. MUST start with BOM (0xFEFF). Null-terminated (0x0000).",
+                  "binaryFormat": "variable",
+                  "x-binary-encoding": "utf-16be",
+                  "x-binary-terminator": "0x0000"
+                }
+              },
+              "required": ["nameLanguageTag", "sensorName"]
+            }
+          }
+        },
+        "required": ["nameStringCount", "names"]
+      }
+    }
+  },
+  "required": [
+    "pdrHeader",
+    "PLDMTerminusHandle",
+    "sensorID",
+    "sensorCount",
+    "auxNames"
+  ]
+}
