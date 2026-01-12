@@ -1,0 +1,29 @@
+.. directive:: pldm-pdr-table
+This Sphinx directive generates a formatted table representing the structure and data of a PLDM PDR (Platform Level Data Model Platform Descriptor Record) based on a provided YAML data file and a JSON schema for validation. It processes the YAML data, cleans it for validation (removing documentation-specific metadata keys like _doc_hidden or _custom_rows), validates it against the schema, and then flattens the hierarchical data into a tabular format.
+The table includes the following columns:
+	•	Type: The inferred data type of the field (e.g., uint8, enum16, bitfield32, ascii, etc.). Types are derived from the schema’s binary format, description, or explicit type keys in the YAML.
+	•	Field Name: The name of the field, derived from the YAML keys (with array indices if applicable).
+	•	Value: The value of the field as specified in the YAML.
+	•	Comment: Any associated comment from the YAML, which can include reStructuredText markup for rich rendering (e.g., bold, italics, or lists). If RST parsing fails, the comment falls back to plain text.
+Key features and behaviors:
+	•	Validation: Ensures the cleaned YAML data conforms to the JSON schema. Raises an error on validation failure, including the path and message.
+	•	Hidden Fields: Skips fields marked as hidden using metadata keys like _doc_hidden: true or docHidden: true.
+	•	Custom Rows: Supports injecting custom table rows before (via _custom_rows_before) or after (via _custom_rows) a subtree. Each custom row must be a list of exactly 4 elements matching the table columns.
+	•	Schema Resolution: Handles conditional subschemas (allOf/if/then) to resolve types and structures dynamically based on the data.
+	•	Flattening: Recursively flattens dictionaries and lists into rows, ignoring metadata keys.
+	•	Table Styling: Applies CSS classes colwidths-auto and tight-table for better layout. Supports captions for numbering and names for cross-referencing.
+	•	Dependencies: Notes the YAML and schema files as dependencies for Sphinx’s build system.
+	•	Comment Parsing: Attempts to parse comments as reStructuredText for rich rendering in the table cell; warns on failure.
+If no valid rows are generated after processing, an error is raised.
+Arguments (required, positional):
+	•	yaml_path: Relative or absolute path to the YAML data file (resolved via Sphinx’s environment).
+	•	schema_path: Relative or absolute path to the JSON schema file.
+Options:
+	•	caption: Optional caption text for the table (enables numbering).
+	•	name: Optional name for the table (allows cross-referencing with :ref:).
+Content: This directive does not support body content.
+Example Usage::
+  .. pldm-pdr-table:: path/to/data.yaml path/to/schema.json
+     :caption: Example PLDM PDR Table
+     :name: pdr-example
+This directive is designed for technical documentation involving PLDM PDRs, such as in hardware or firmware specifications, ensuring data integrity through schema validation and providing a clear, tabular visualization of complex hierarchical data.
